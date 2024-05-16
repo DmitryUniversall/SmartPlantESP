@@ -10,7 +10,7 @@
 namespace Settings {
     struct AppConfig {
         uint transfer_server_port = 8000;
-        String transfer_server_host = "172.27.11.5";
+        String transfer_server_host = "0.0.0.0";
         String transfer_server_login = "master";
         String transfer_server_password = "master";
 
