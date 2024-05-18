@@ -25,8 +25,6 @@ namespace Settings {
     public:
         ProjectSettings();
 
-        explicit ProjectSettings(AppConfig& config);
-
         void read_from_storage();
 
         void save();
@@ -51,3 +49,5 @@ namespace Settings {
         AppConfig _config;
     };
 }
+
+extern Settings::ProjectSettings project_settings;

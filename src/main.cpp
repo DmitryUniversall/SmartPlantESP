@@ -36,7 +36,6 @@ using namespace TransferServer;
 using namespace ESPWeb;
 
 
-Settings::ProjectSettings project_settings;
 TransferWS transferWS;
 ESPWebServer webServer;
 

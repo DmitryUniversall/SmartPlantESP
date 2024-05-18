@@ -6,8 +6,6 @@
 namespace Settings {
     ProjectSettings::ProjectSettings() = default;
 
-    ProjectSettings::ProjectSettings(AppConfig& config) : _config(config) {}
-
     bool ProjectSettings::_is_initialized() {
         return EEPROM.read(EEPROM_CONFIG_INIT_ADDR) == EEPROM_CONFIG_INIT_KEY;
     }
@@ -58,3 +56,5 @@ namespace Settings {
         _config = std::move(config);
     }
 }
+
+Settings::ProjectSettings project_settings = Settings::ProjectSettings();
