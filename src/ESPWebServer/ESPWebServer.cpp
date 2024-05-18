@@ -75,13 +75,13 @@ namespace ESPWeb {
 
         Settings::AppConfig* config = _settings.getConfig();
 
-        JsonDocument doc;
+        JsonDocument document;
 
-        doc["ok"] = true;
-        doc["code"] = 200;
-        doc["message"] = "OK";
+        document["ok"] = true;
+        document["code"] = 200;
+        document["message"] = "OK";
 
-        JsonObject detail = doc["detail"].to<JsonObject>();
+        JsonObject detail = document["detail"].to<JsonObject>();
         detail["transfer_server_port"] = config->transfer_server_port;
         detail["transfer_server_host"] = config->transfer_server_host;
         detail["esp_wifi_ssid"] = config->esp_wifi_ssid;
@@ -92,7 +92,7 @@ namespace ESPWeb {
         detail["transfer_server_password"] = config->transfer_server_password;
 
         String jsonString;
-        serializeJson(doc, jsonString);
+        serializeJson(document, jsonString);
 
         _server.send(200, "application/json", jsonString);
     }
