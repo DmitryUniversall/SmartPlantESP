@@ -44,3 +44,6 @@ namespace ESPWeb {
         Settings::ProjectSettings _settings;
     };
 }
+
+
+extern ESPWeb::ESPWebServer web_server;

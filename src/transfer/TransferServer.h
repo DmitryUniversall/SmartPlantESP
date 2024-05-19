@@ -74,3 +74,6 @@ namespace TransferServer {
         TransferResponseHandler _transfer_response_handler;
     };
 }
+
+
+extern TransferServer::TransferWS transfer_ws;

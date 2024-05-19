@@ -115,3 +115,6 @@ namespace ESPWeb {
         _server.send(response.http_status, "application/json", jsonString);
     }
 }
+
+
+ESPWeb::ESPWebServer web_server;

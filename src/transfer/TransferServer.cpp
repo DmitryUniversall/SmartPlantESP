@@ -108,3 +108,6 @@ namespace TransferServer {
         }
     }
 }
+
+
+TransferServer::TransferWS transfer_ws;

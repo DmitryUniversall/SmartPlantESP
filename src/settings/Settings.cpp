@@ -57,4 +57,4 @@ namespace Settings {
     }
 }
 
-Settings::ProjectSettings project_settings = Settings::ProjectSettings();
+Settings::ProjectSettings project_settings;
