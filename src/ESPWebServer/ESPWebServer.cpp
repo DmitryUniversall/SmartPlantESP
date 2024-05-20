@@ -1,31 +1,24 @@
+#include <ArduinoJson.h>
 #include "ESPWebServer.h"
 #include "MainPageHTML.h"
-#include <ArduinoJson.h>
+#include "settings/Settings.h"
 
 
 namespace ESPWeb {
-    void ESPWebServer::setup(Settings::ProjectSettings& settings) {
-        _settings = settings;
-        _setup_routes();
-    }
-
-
     void ESPWebServer::begin() {
+        _setup_routes();
         _server.begin();
     }
-
 
     void ESPWebServer::serve() {
         _server.handleClient();
     }
-
 
     void ESPWebServer::_setup_routes() {
         _server.on("/", HTTPMethod::HTTP_GET, std::bind(&ESPWebServer::_handler_main_get, this));
         _server.on("/settings/", HTTPMethod::HTTP_GET, std::bind(&ESPWebServer::_handler_settings_get, this));
         _server.on("/settings/", HTTPMethod::HTTP_POST, std::bind(&ESPWebServer::_handler_update_settings_port, this));
     }
-
 
     StatusResponse ESPWebServer::_update_config(String& json_string) {
         JsonDocument document;
@@ -37,7 +30,7 @@ namespace ESPWeb {
             return {false, 400, 100, "Failed to parse Json"};
         }
 
-        Settings::AppConfig* config = _settings.getConfig();
+        Settings::AppConfig* config = project_settings.getConfig();
         config->transfer_server_port = document["transfer_server_port"];
         config->transfer_server_host = document["transfer_server_host"].as<String>();
 
@@ -59,7 +52,7 @@ namespace ESPWeb {
         Serial.printf("Updated config field transfer_server_login: %s\n", config->transfer_server_login.c_str());
         Serial.printf("Updated config field transfer_server_password: %s\n", config->transfer_server_password.c_str());
 
-        _settings.save();
+        project_settings.save();
 
         return {true, 200, 200, "Updated"};
     }
@@ -69,11 +62,10 @@ namespace ESPWeb {
         _server.send_P(200, "text/html", MAIN_PAGE_HTML);
     }
 
-
     void ESPWebServer::_handler_settings_get() {
         Serial.println("Requested for current settings");
 
-        Settings::AppConfig* config = _settings.getConfig();
+        Settings::AppConfig* config = project_settings.getConfig();
 
         JsonDocument document;
 
@@ -96,7 +88,6 @@ namespace ESPWeb {
 
         _server.send(200, "application/json", jsonString);
     }
-
 
     void ESPWebServer::_handler_update_settings_port() {
         Serial.println("Requested for settings update");

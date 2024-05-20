@@ -13,13 +13,13 @@ HTSensor::HTSensor(uint tempRequestInterval, uint humRequestInterval) {
 }
 
 
-//float HTSensor::readTemperature() {
-//    return 0;
-//}
-//
-//float HTSensor::readHumidity() {
-//    return 0;
-//}
+float HTSensor::readTemperature() {
+    return _sht.getTemperature();
+}
+
+float HTSensor::readHumidity() {
+    return _sht.getHumidity();
+}
 
 void HTSensor::readTemperatureAsync() {
     uint32_t now = millis();

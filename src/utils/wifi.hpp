@@ -11,7 +11,15 @@ void syncWIFIConnect(
 ) {
     WiFiClass::mode(WIFI_STA);
     WiFi.begin(ssid, password);
-    while (WiFiClass::status() != WL_CONNECTED) delay(tick);
+
+    Serial.print("[WIFIUtils]: Connecting to WIFI");
+
+    while (WiFiClass::status() != WL_CONNECTED){
+        Serial.print(".");
+        delay(tick);
+    }
+
+    Serial.print("\n");
 }
 
 
@@ -23,4 +31,8 @@ bool createSoftAP(
         const IPAddress& subnet = IPAddress(255, 255, 255, 0)
 ) {
     return WiFi.softAP(ssid, password) && WiFi.softAPConfig(local_ip, gateway, subnet);
+}
+
+void stopWiFiAP() {
+    WiFi.softAPdisconnect(true);
 }

@@ -22,7 +22,7 @@ namespace TransferServer {
         response.ok = json["ok"];
         response.application_status_code = json["application_status_code"];
         response.message = json["message"].as<String>();
-        response.data = json["data"].as<String>();
+        response.data.set(json["data"]);
 
         return response;
     }
@@ -32,7 +32,7 @@ namespace TransferServer {
 
         message.created_at = json["created_at"].as<String>();
         message.sender_device_id = json["sender_device_id"].as<String>();
-        message.data = json["data"].as<String>();
+        message.data.set(json["data"]);
 
         return message;
     }
@@ -42,10 +42,10 @@ namespace TransferServer {
     }
 
     void TransferWS::begin(const String& host, uint port, const String& url, const String& access_token) {
-        _webSocket.begin(host, port, url);
         _webSocket.onEvent(std::bind(&TransferWS::_handle_websocket_event, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
         _webSocket.setExtraHeaders(("Authorization: Bearer " + access_token).c_str());
         _webSocket.setReconnectInterval(5000);
+        _webSocket.begin(host, port, url);
     }
 
     void TransferWS::disconnect() {

@@ -17,7 +17,7 @@ namespace TransferServer {
     struct TransferRequest {
         TransferRequestMSGType msg_type;
         String target_device_id;
-        JsonObject data;
+        JsonDocument data;
 
         String serialize() const;
     };
@@ -26,7 +26,7 @@ namespace TransferServer {
         bool ok;
         uint application_status_code;
         String message;
-        String data;
+        JsonDocument data;
 
         static TransferResponse deserialize(const JsonObject& json);
     };
@@ -34,7 +34,7 @@ namespace TransferServer {
     struct DataMessage {
         String created_at;
         String sender_device_id;
-        String data;
+        JsonDocument data;
 
         static DataMessage deserialize(const JsonObject& json);
     };

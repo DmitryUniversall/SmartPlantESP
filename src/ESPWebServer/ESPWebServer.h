@@ -14,25 +14,23 @@ namespace ESPWeb {
         String message;
 
         StatusResponse(
-                const bool& ok,
-                const int& http_status,
-                const int& code,
-                String message
+            const bool& ok,
+            const int& http_status,
+            const int& code,
+            String message
         ) : ok(ok), http_status(http_status), code(code), message(std::move(message)) {}
     };
 
     class ESPWebServer {
     public:
-        void setup(Settings::ProjectSettings&);
-
         void begin();
 
         void serve();
 
     protected:
-        void _setup_routes();
+        static StatusResponse _update_config(String& json_string);
 
-        StatusResponse _update_config(String& json_string);
+        void _setup_routes();
 
         void _handler_main_get();
 
@@ -41,7 +39,6 @@ namespace ESPWeb {
         void _handler_update_settings_port();
 
         WebServer _server;
-        Settings::ProjectSettings _settings;
     };
 }
 

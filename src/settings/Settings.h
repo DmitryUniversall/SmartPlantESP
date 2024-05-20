@@ -8,7 +8,7 @@
 #define EEPROM_CONFIG_INIT_KEY 55
 
 namespace Settings {
-    struct AppConfig {
+    struct AppConfig {  // TODO: Add data_update_interval
         uint transfer_server_port = 8000;
         String transfer_server_host = "0.0.0.0";
         String transfer_server_login = "master";

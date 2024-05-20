@@ -10,13 +10,12 @@ public:
 
     HTSensor(uint tempRequestInterval, uint humRequestInterval);
 
-    // Setup
     void begin();
 
     // For sync interface
-//    float readTemperature();
-//
-//    float readHumidity();
+    float readTemperature();
+
+    float readHumidity();
 
     // For async interface
     void readTemperatureAsync();
