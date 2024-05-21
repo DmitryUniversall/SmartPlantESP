@@ -25,6 +25,12 @@ namespace Sensors {
         return document;
     }
 
+    void setupSensors() {
+        pinMode(PIN_BUTTON, INPUT_PULLUP);
+        pinMode(PIN_LIGHT_SENSOR, INPUT);
+        pinMode(PIN_SOIL_MOISTURE_SENSOR, INPUT);
+    }
+
     Types::Pair<float, float> getHTAsync() {
         return {
             htSensor.getLastTemperature(),

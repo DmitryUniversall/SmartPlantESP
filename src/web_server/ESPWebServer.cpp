@@ -1,11 +1,12 @@
 #include <ArduinoJson.h>
 #include "ESPWebServer.h"
-#include "MainPageHTML.h"
+#include "HTMLPages.h"
 #include "settings/Settings.h"
 
 
 namespace ESPWeb {
     void ESPWebServer::begin() {
+        Serial.println("Staring ESP web server");
         _setup_routes();
         _server.begin();
     }
@@ -31,28 +32,7 @@ namespace ESPWeb {
         }
 
         Settings::AppConfig* config = project_settings.getConfig();
-        config->transfer_server_port = document["transfer_server_port"];
-        config->transfer_server_host = document["transfer_server_host"].as<String>();
-
-        config->esp_wifi_ssid = document["esp_wifi_ssid"].as<String>();
-        config->esp_wifi_password = document["esp_wifi_password"].as<String>();
-
-        config->user_wifi_ssid = document["user_wifi_ssid"].as<String>();
-        config->user_wifi_password = document["user_wifi_password"].as<String>();
-
-        config->transfer_server_login = document["transfer_server_login"].as<String>();
-        config->transfer_server_password = document["transfer_server_password"].as<String>();
-
-        Serial.printf("Updated config field transfer_server_port: %d\n", config->transfer_server_port);
-        Serial.printf("Updated config field transfer_server_host: %s\n", config->transfer_server_host.c_str());
-        Serial.printf("Updated config field esp_wifi_name: %s\n", config->esp_wifi_ssid.c_str());
-        Serial.printf("Updated config field esp_wifi_password: %s\n", config->esp_wifi_password.c_str());
-        Serial.printf("Updated config field user_wifi_name: %s\n", config->user_wifi_ssid.c_str());
-        Serial.printf("Updated config field user_wifi_password: %s\n", config->user_wifi_password.c_str());
-        Serial.printf("Updated config field transfer_server_login: %s\n", config->transfer_server_login.c_str());
-        Serial.printf("Updated config field transfer_server_password: %s\n", config->transfer_server_password.c_str());
-
-        project_settings.save();
+        config->updateSettingsFromJson(document.as<JsonObject>());
 
         return {true, 200, 200, "Updated"};
     }

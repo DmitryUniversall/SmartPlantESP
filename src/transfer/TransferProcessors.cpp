@@ -63,6 +63,8 @@ namespace TransferProcessors {
     }
 
     void ActionProcessor::_handle_data_message(const TransferServer::DataMessage& message) {
+        Serial.printf("[TransferProcessor]: Data message sender: %s\n", message.sender_device_id.c_str());
+
         uint8_t action = message.data["action"];  // Returns 0 if key does not exist
         if (!action) return send_error(CODE_UNKNOWN_ACTION.message, CODE_UNKNOWN_ACTION.code);
 
@@ -72,7 +74,7 @@ namespace TransferProcessors {
 
         Serial.printf("[TransferProcessor]: Found handler for action %d\n", action);
         ActionHandler handler = it->second;
-        handler(message, message.data);
+        handler(message);
     }
 }
 

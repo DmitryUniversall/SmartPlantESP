@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include <ArduinoJson.h>
 
 #define EEPROM_CONFIG_ADDR 2
 
@@ -9,6 +10,7 @@
 
 namespace Settings {
     struct AppConfig {  // TODO: Add data_update_interval
+        // Core settings
         uint transfer_server_port = 8000;
         String transfer_server_host = "0.0.0.0";
         String transfer_server_login = "master";
@@ -19,12 +21,17 @@ namespace Settings {
 
         String user_wifi_ssid = "SmartPlant";
         String user_wifi_password = "SmartPlant";
+
+        // Growing settings
+        uint watering_duration = 5000;
+
+        void updateSettingsFromJson(const JsonObject& jsonObject);
+
+        void show() const;
     };
 
     class ProjectSettings {
     public:
-        ProjectSettings();
-
         void read_from_storage();
 
         void save();

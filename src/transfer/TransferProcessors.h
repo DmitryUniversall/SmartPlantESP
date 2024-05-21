@@ -10,7 +10,7 @@ using namespace TransferWSCodes;
 
 
 namespace TransferProcessors {  // FIXME: Random reload???
-    using ActionHandler = std::function<void(const DataMessage&, const JsonDocument&)>;
+    using ActionHandler = std::function<void(const DataMessage&)>;
 
     struct ActionResponse {
         bool ok;

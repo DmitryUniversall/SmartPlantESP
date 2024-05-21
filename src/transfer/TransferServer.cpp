@@ -42,6 +42,8 @@ namespace TransferServer {
     }
 
     void TransferWS::begin(const String& host, uint port, const String& url, const String& access_token) {
+        Serial.println("[TransferWS]: Initializing WS connection");
+
         _webSocket.onEvent(std::bind(&TransferWS::_handle_websocket_event, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
         _webSocket.setExtraHeaders(("Authorization: Bearer " + access_token).c_str());
         _webSocket.setReconnectInterval(5000);
@@ -98,7 +100,7 @@ namespace TransferServer {
         Serial.printf("[TransferWS]: Disconnected: %s\n", payload);
     }
 
-    void TransferWS::_handle_websocket_event(WStype_t type, byte* payload, size_t length) {
+    void TransferWS::_handle_websocket_event(WStype_t type, byte* payload, size_t) {
         if (type == WStype_CONNECTED) {
             _handle_websocket_connect(payload);
         } else if (type == WStype_DISCONNECTED) {
