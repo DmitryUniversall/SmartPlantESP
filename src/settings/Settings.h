@@ -22,6 +22,9 @@ namespace Settings {
         String user_wifi_ssid = "SmartPlant";
         String user_wifi_password = "SmartPlant";
 
+        // Data transfer settings
+        uint data_update_interval = 5000;
+
         // Growing settings
         uint watering_duration = 5000;
 

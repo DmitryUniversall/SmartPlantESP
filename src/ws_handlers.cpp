@@ -30,7 +30,9 @@ namespace WSHandlers {
         Serial.println("[REQUEST]: DATA_UPDATE");
 
         if (sendDataTask == nullptr) {
-            sendDataTask = new Tasks::LoopedTask(5000, send_sensors_data);
+            Settings::AppConfig* config = project_settings.getConfig();
+
+            sendDataTask = new Tasks::LoopedTask(config->data_update_interval, send_sensors_data);
             sendDataTask->callSoon();
         }
     }
