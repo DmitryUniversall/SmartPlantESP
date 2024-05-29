@@ -1,21 +1,23 @@
 #include "TransferProcessors.h"
+#include "utils/utils.hpp"
 
 namespace TransferProcessors {
-    String ActionResponse::serialize() const {
-        JsonDocument document = serialize_json();
+    String StorageAction::serialize() const {
+        JsonDocument doc;
+
+        doc["action"] = action;
+        doc["data"] = data;
 
         String output;
-        serializeJson(document, output);
+        serializeJson(doc, output);
 
         return output;
     }
 
-    JsonDocument ActionResponse::serialize_json() const {
+    JsonDocument StorageAction::serialize_json() const {
         JsonDocument document;
 
-        document["ok"] = ok;
-        document["message"] = message;
-        document["application_status_code"] = application_status_code;
+        document["action"] = action;
 
         if (data.isNull()) {
             document["data"] = nullptr;
@@ -38,20 +40,28 @@ namespace TransferProcessors {
         _actionHandlers[action] = handler;
     }
 
-    void ActionProcessor::send_error(const char* message, uint application_status_code) {
-        send_response({false, message, application_status_code, JsonDocument()});
+    void ActionProcessor::send_error(const String& message, uint application_status_code, const String& message_id) {
+        send_response({false, application_status_code, message, JsonDocument()}, message_id);
     }
 
-    void ActionProcessor::send_error(const String& message, uint application_status_code) {
-        send_error(message.c_str(), application_status_code);
-    }
-
-    void ActionProcessor::send_response(const ActionResponse& response) {
+    void ActionProcessor::send_response(const TransferResponse& response, const String& message_id) {
         transfer_ws.send_request(
             {
-                TransferRequestMSGType::SEND_QUEUE_MESSAGE,
-                "android",
+                TransferRequestMSGType::ENQUEUE_RESPONSE,
+                message_id,
+                "SmartPlantAndroid",
                 response.serialize_json()
+            }
+        );
+    }
+
+    void ActionProcessor::send_action(const StorageAction& action) {
+        transfer_ws.send_request(
+            {
+                TransferRequestMSGType::ENQUEUE_REQUEST,
+                utils::generateRandomString(),
+                "SmartPlantAndroid",
+                action.serialize_json()
             }
         );
     }
@@ -66,11 +76,12 @@ namespace TransferProcessors {
         Serial.printf("[TransferProcessor]: Data message sender: %s\n", message.sender_device_id.c_str());
 
         uint8_t action = message.data["action"];  // Returns 0 if key does not exist
-        if (!action) return send_error(CODE_UNKNOWN_ACTION.message, CODE_UNKNOWN_ACTION.code);
+        if (!action) return send_error(CODE_UNKNOWN_ACTION.message, CODE_UNKNOWN_ACTION.code, message.message_id);
 
         Serial.printf("[TransferProcessor]: Requested action %d\n", action);
         auto it = _actionHandlers.find(action);
-        if (it == _actionHandlers.end()) return send_error(CODE_UNKNOWN_ACTION.message, CODE_UNKNOWN_ACTION.code);
+        if (it == _actionHandlers.end())
+            return send_error(CODE_UNKNOWN_ACTION.message, CODE_UNKNOWN_ACTION.code, message.message_id);
 
         Serial.printf("[TransferProcessor]: Found handler for action %d\n", action);
         ActionHandler handler = it->second;

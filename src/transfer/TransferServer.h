@@ -6,16 +6,23 @@
 
 namespace TransferServer {
     enum TransferResponseMSGType {
-        RESPONSE = 1,
+        SERVER_RESPONSE = 1,
         DATA = 2
     };
 
     enum TransferRequestMSGType {
-        SEND_QUEUE_MESSAGE = 1
+        ENQUEUE_REQUEST = 3,
+        ENQUEUE_RESPONSE = 4
+    };
+
+    enum DataMessageType {
+        REQUEST = 1,
+        RESPONSE = 2
     };
 
     struct TransferRequest {
         TransferRequestMSGType msg_type;
+        String message_id;
         String target_device_id;
         JsonDocument data;
 
@@ -29,15 +36,23 @@ namespace TransferServer {
         JsonDocument data;
 
         static TransferResponse deserialize(const JsonObject& json);
+
+        JsonDocument serialize_json() const;
+
+        String serialize() const;
     };
 
     struct DataMessage {
+        DataMessageType data_type;
+        String message_id;
         String created_at;
         String sender_device_id;
         JsonDocument data;
 
         static DataMessage deserialize(const JsonObject& json);
     };
+
+    String getAccessToken(const char* username, const char* userPassword);
 
     class TransferWS {
     public:

@@ -1,19 +1,60 @@
 #include "TransferServer.h"
+#include "settings/Settings.h"
 
 #include <utility>
+#include <HTTPClient.h>
 
 namespace TransferServer {
-    String TransferRequest::serialize() const {
-        JsonDocument doc;
+    String getAccessToken(const char* username, const char* userPassword) {  // TODO: Refactor this
+        if (WiFi.status() == WL_CONNECTED) {
+            HTTPClient http;
 
-        doc["data"] = data;
-        doc["msg_type"] = msg_type;
-        doc["target_device_id"] = target_device_id;
+            Settings::AppConfig* config = project_settings.getConfig();
 
-        String output;
-        serializeJson(doc, output);
+            http.begin(
+                "http://" + config->transfer_server_host + ":" + config->transfer_server_port + "/api/auth/login/"
+            );
+            http.addHeader("Content-Type", "application/json");
 
-        return output;
+            // Create JSON payload
+            String payload =
+                "{\"username\":\"" + String(username) + "\", \"password\":\"" + String(userPassword) + "\"}";
+
+            int httpResponseCode = http.POST(payload);
+
+            if (httpResponseCode > 0) {
+                String response = http.getString();
+                Serial.println(httpResponseCode);
+                Serial.println(response);
+
+                // Parse JSON response
+                JsonDocument doc;
+                DeserializationError error = deserializeJson(doc, response);
+
+                if (!error) {
+                    const char* accessToken = doc["data"]["tokens"]["access_token"];
+                    http.end();
+
+                    return {accessToken};
+                } else {
+                    Serial.print("JSON deserialization failed: ");
+                    Serial.println(error.c_str());
+                    http.end();
+
+                    return {};
+                }
+            } else {
+                Serial.print("Error on sending POST: ");
+                Serial.println(httpResponseCode);
+                http.end();
+
+                return {};
+            }
+
+        } else {
+            Serial.println("WiFi not connected");
+            return {};
+        }
     }
 
     TransferResponse TransferResponse::deserialize(const JsonObject& json) {
@@ -27,9 +68,50 @@ namespace TransferServer {
         return response;
     }
 
+    String TransferResponse::serialize() const {
+        JsonDocument document = serialize_json();
+
+        String output;
+        serializeJson(document, output);
+
+        return output;
+    }
+
+    JsonDocument TransferResponse::serialize_json() const {
+        JsonDocument document;
+
+        document["ok"] = ok;
+        document["message"] = message;
+        document["application_status_code"] = application_status_code;
+
+        if (data.isNull()) {
+            document["data"] = nullptr;
+        } else {
+            document["data"] = data;
+        }
+
+        return document;
+    }
+
+    String TransferRequest::serialize() const {
+        JsonDocument doc;
+
+        doc["msg_type"] = msg_type;
+        doc["message_id"] = message_id;
+        doc["target_device_id"] = target_device_id;
+        doc["data"] = data;
+
+        String output;
+        serializeJson(doc, output);
+
+        return output;
+    }
+
     DataMessage DataMessage::deserialize(const JsonObject& json) {
         DataMessage message;
 
+        message.data_type = json["data_type"] == 1 ? DataMessageType::REQUEST : DataMessageType::RESPONSE;  // TODO: REFACTOR THIS
+        message.message_id = json["message_id"].as<String>();
         message.created_at = json["created_at"].as<String>();
         message.sender_device_id = json["sender_device_id"].as<String>();
         message.data.set(json["data"]);
@@ -55,6 +137,7 @@ namespace TransferServer {
     }
 
     void TransferWS::send_request(const TransferRequest& request) {
+        Serial.println(request.serialize());
         _webSocket.sendTXT(request.serialize().c_str());
     }
 
@@ -83,7 +166,7 @@ namespace TransferServer {
         deserializeJson(doc, payload);
         uint8_t msg_type = doc["msg_type"];
 
-        if (msg_type == TransferResponseMSGType::RESPONSE) {
+        if (msg_type == TransferResponseMSGType::SERVER_RESPONSE) {
             _handle_transfer_response(TransferResponse::deserialize(doc.as<JsonObject>()));
         } else if (msg_type == TransferResponseMSGType::DATA) {
             _handle_data_message(DataMessage::deserialize(doc["data"].as<JsonObject>()));

@@ -23,9 +23,9 @@ namespace Controllers {
     }
 
     void ledToggle() {
-        uint8_t current = controllers_state.led == 0 ? HIGH : LOW;
-        ledDigital(current);
-        controllers_state.lamp = current;
+        uint8_t newState = controllers_state.led == LOW ? HIGH : LOW;
+        ledDigital(newState);
+        controllers_state.led = newState;
     }
 
     // ====== LAMP ======
@@ -65,7 +65,7 @@ namespace Controllers {
         waterPumpDigital(HIGH);
         Serial.printf("Watering started; Duration: %d\n", config->watering_duration);
 
-        // Is it danger? (task can only be called after all processes is completed)
+        // Is it danger? (task can be called only after all processes is completed, so pump can be enabled longer, then expected)
         taskManager.callAfter(config->watering_duration, []() {
             waterPumpDigital(LOW);
             Serial.println("Watering done");

@@ -17,8 +17,8 @@ namespace Sensors {
     JsonDocument SensorsData::serialize_json() const {
         JsonDocument document;
 
-        document["brightness"] = brightness;
-        document["soilMoisture"] = soilMoisture;
+        document["illumination"] = brightness;
+        document["soil_moisture"] = soilMoisture;
         document["temperature"] = temperature;
         document["humidity"] = humidity;
 
@@ -26,12 +26,16 @@ namespace Sensors {
     }
 
     void setupSensors() {
+        htSensor.begin();
         pinMode(PIN_BUTTON, INPUT_PULLUP);
         pinMode(PIN_LIGHT_SENSOR, INPUT);
         pinMode(PIN_SOIL_MOISTURE_SENSOR, INPUT);
     }
 
     Types::Pair<float, float> getHTAsync() {
+        htSensor.readTemperatureAsync();
+        htSensor.readHumidityAsync();
+
         return {
             htSensor.getLastTemperature(),
             htSensor.getLastHumidity()
@@ -43,7 +47,7 @@ namespace Sensors {
     }
 
     uint getBrightness() {
-        return analogRead(PIN_LIGHT_SENSOR);
+        return 4096 - analogRead(PIN_LIGHT_SENSOR);
     }
 
     SensorsData getSensorsData() {

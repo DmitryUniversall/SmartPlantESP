@@ -8,7 +8,7 @@
 #include "sensors/sensors.h"
 #include "controllers/controllers.h"
 #include "web_server/ESPWebServer.h"
-
+#include "sensors/sensors.h"
 
 void setup() {
     Serial.begin(115200);
@@ -24,15 +24,17 @@ void setup() {
 //    web_server.begin();
 
     syncWIFIConnect(config->user_wifi_ssid, config->user_wifi_password);
-
+//
     action_processor.self_register();
     WSHandlers::register_ws_handlers();
-    transfer_ws.begin("172.27.11.12", 8000, "/api/storage/smartplant/", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjM0MzI1OTQ0NzQsInV1aWQiOiIxNGUwZjVmMzg2YTY0N2U4OWViNjg5Y2JlMzA4NWM4NCIsInRva2VuX3R5cGUiOiJhY2Nlc3MiLCJ1c2VyX2lkIjoxfQ.3poxMWjU00Ninn5UX9f8_CMdq219OAg37CMqxNLePa8");
+    String accessToken = TransferServer::getAccessToken(config->transfer_server_login.c_str(), config->transfer_server_password.c_str());
+    Serial.printf("ACCESS TOKEN: %s", accessToken.c_str());
+    transfer_ws.begin(config->transfer_server_host, config->transfer_server_port, "/api/storage/smartplant/", accessToken);
 }
 
 
 void loop() {
+    taskManager.update();
 //    web_server.serve();
     transfer_ws.loop();
-    taskManager.update();
 }

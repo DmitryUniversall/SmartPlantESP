@@ -9,17 +9,14 @@ using namespace TransferServer;
 using namespace TransferWSCodes;
 
 
-namespace TransferProcessors {  // FIXME: Random reload???
+namespace TransferProcessors {
     using ActionHandler = std::function<void(const DataMessage&)>;
 
-    struct ActionResponse {
-        bool ok;
-        const char* message;
-        uint application_status_code;
+    struct StorageAction {
+        uint action;
         JsonDocument data;
 
         String serialize() const;
-
         JsonDocument serialize_json() const;
     };
 
@@ -29,11 +26,11 @@ namespace TransferProcessors {  // FIXME: Random reload???
 
         void register_action(uint8_t action, const ActionHandler& handler);
 
-        static void send_error(const char* message, uint application_status_code);
+        static void send_error(const String& message, uint application_status_code, const String& message_id);
 
-        static void send_error(const String& message, uint application_status_code);
+        static void send_response(const TransferResponse& response, const String& message_id);
 
-        static void send_response(const ActionResponse& response);
+        static void send_action(const StorageAction& action);
 
     private:
         static void _handle_transfer_response(const TransferResponse& response);
